@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ClientMenu from './ClientMenu';
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -298,6 +299,12 @@ const MenuCMS = ({ catalog, db, appId }) => (
 // --- MAIN APP COMPONENT ---
 const App = () => {
   const [user, setUser] = useState(null);
+
+  // --- TRAFFIC CONTROLLER ---
+  if (window.location.pathname === '/menu') {
+    return <ClientMenu />;
+  }
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [leads, setLeads] = useState([]);
   const [catalog, setCatalog] = useState([]);
