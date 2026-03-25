@@ -3,7 +3,6 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, onSnapshot } from 'firebase/firestore';
 import { Utensils, ShieldCheck, Clock, CameraOff, ChevronRight, Info } from 'lucide-react';
 
-// --- FIREBASE CONFIG (Must match your App.jsx) ---
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
@@ -21,9 +20,7 @@ const ClientMenu = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Ensure the path matches your App.jsx exactly
     const path = collection(db, 'artifacts', 'homebase-delaware-events', 'public', 'data', 'catalog');
-    
     const unsubscribe = onSnapshot(path, (snap) => {
       setCatalog(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       setLoading(false);
@@ -31,14 +28,31 @@ const ClientMenu = () => {
       console.error("Firestore error:", err);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
   if (loading) {
     return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <div className="w-12 h-12 bg-slate-900 rounded-2xl animate-pulse flex items-center justify-center mb-4">
+            <Utensils className="text-white w-6 h-6" />
+        </div>
+        <p className="font-black text-[10px] uppercase tracking-[0.3em] text-slate-400">Loading Catalog...</p>
+      </div>
+    );
+  }
+
+  // --- CATEGORY GROUPING LOGIC ---
+  const categorizedItems = catalog.reduce((acc, item) => {
+    const cat = item.category || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(item);
+    return acc;
+  }, {});
+
+  return (
     <div className="min-h-screen bg-[#FDFDFD] font-sans text-slate-900 pb-24">
-      {/* --- HERO HEADER --- */}
+      {/* Header */}
       <header className="bg-white border-b border-slate-100 px-8 py-12 text-center sticky top-0 z-30 shadow-sm backdrop-blur-md bg-white/90">
         <div className="max-w-4xl mx-auto flex flex-col items-center">
             <div className="flex items-center gap-3 mb-4">
@@ -46,23 +60,14 @@ const ClientMenu = () => {
                 <span className="text-[10px] font-black tracking-[0.4em] text-slate-400 uppercase">Home Base Delaware</span>
                 <div className="h-[1px] w-8 bg-slate-200" />
             </div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase text-slate-900 mb-2">Event Catalog</h1>
+            <h1 className="text-5xl font-black tracking-tighter uppercase text-slate-900 mb-2 text-center">Event Catalog</h1>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 pt-12">
-        {/* --- CATEGORY GROUPING LOGIC --- */}
-        {Object.entries(
-          catalog.reduce((acc, item) => {
-            const cat = item.category || 'Other';
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(item);
-            return acc;
-          }, {})
-        ).map(([category, items]) => (
+        {Object.entries(categorizedItems).map(([category, items]) => (
           <div key={category} className="mb-24">
-            
-            {/* Category Header */}
+            {/* Category Section Header */}
             <div className="flex items-center gap-6 mb-12">
               <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900 whitespace-nowrap">
                 {category}
@@ -73,16 +78,24 @@ const ClientMenu = () => {
             {/* Items Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {items.map((item) => (
-                <div key={item.id} className="group bg-white rounded-[45px] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col h-full">
+                <div key={item.id} className="group bg-white rounded-[45px] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full">
+                  
+                  {/* Image container */}
                   <div className="h-72 w-full bg-slate-50 relative overflow-hidden">
-                    {item.image && (
+                    {item.image ? (
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-200 bg-slate-50">
+                        <CameraOff className="w-12 h-12 mb-2" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Image Pending</span>
+                      </div>
                     )}
                     <div className="absolute bottom-6 right-6 bg-slate-900 text-white px-5 py-2 rounded-2xl font-black text-xl shadow-xl">
                       ${item.price}
                     </div>
                   </div>
 
+                  {/* Content container */}
                   <div className="p-10 flex flex-col flex-1 text-center items-center">
                     <h3 className="font-black text-2xl uppercase tracking-tighter mb-4 leading-tight">{item.name}</h3>
                     {item.description && (
@@ -90,8 +103,8 @@ const ClientMenu = () => {
                           <p className="text-slate-500 text-sm font-medium leading-relaxed italic">"{item.description}"</p>
                       </div>
                     )}
-                    <button className="mt-auto w-full bg-slate-900 text-white py-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 active:scale-95 transition-all">
-                      Select for Quote
+                    <button className="mt-auto w-full bg-slate-900 text-white py-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2">
+                      Select for Quote <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -102,6 +115,6 @@ const ClientMenu = () => {
       </main>
     </div>
   );
-}; // End of Component
+};
 
 export default ClientMenu;
