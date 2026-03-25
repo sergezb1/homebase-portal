@@ -30,7 +30,8 @@ const EventCalendar = ({ leads }) => {
   const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
   const firstDay = (y, m) => new Date(y, m, 1).getDay();
   
-  const y = currentDate.getFullYear();
+ font-black uppercase tracking-tighter">{monthName} <span className="text-slate-300">{y}</span></h2>
+        <div className="flex gap-2">  const y = currentDate.getFullYear();
   const m = currentDate.getMonth();
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
 
@@ -47,8 +48,7 @@ const EventCalendar = ({ leads }) => {
   return (
     <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
       <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-        <h2 className="text-2xl font-black uppercase tracking-tighter">{monthName} <span className="text-slate-300">{y}</span></h2>
-        <div className="flex gap-2">
+        <h2 className="text-2xl
           <button onClick={() => setCurrentDate(new Date(y, m - 1, 1))} className="p-3 hover:bg-slate-100 rounded-2xl transition-colors"><ChevronLeft className="w-5 h-5"/></button>
           <button onClick={() => setCurrentDate(new Date(y, m + 1, 1))} className="p-3 hover:bg-slate-100 rounded-2xl transition-colors"><ChevronRight className="w-5 h-5"/></button>
         </div>
@@ -106,15 +106,33 @@ const MenuCMS = ({ catalog, db, appId }) => {
   return (
     <div className="space-y-10">
       <div className="bg-white p-10 rounded-[40px] border border-slate-200 shadow-sm">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-slate-400 flex items-center gap-3"><Plus className="w-4 h-4 text-slate-900"/> New Catalog Entry</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <input className="p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900 transition-all" placeholder="Item Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
-          <input className="p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900 transition-all" placeholder="Price ($)" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} />
-          <textarea className="p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900 transition-all md:col-span-2 min-h-[100px]" placeholder="Detailed Description (e.g. Dimensions, serving size, specific details...)" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
-          <input className="p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900 transition-all md:col-span-2" placeholder="Image URL (Paste .jpg or .png link here)" value={newItem.image} onChange={e => setNewItem({...newItem, image: e.target.value})} />
-          <button onClick={handleSave} className="bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs py-5 md:col-span-2 shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all">Add to Public Menu</button>
-        </div>
-      </div>
+  {/* Name & Price Row */}
+  <input className="p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900" placeholder="Item Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+  <input className="p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900" placeholder="Price ($)" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} />
+  
+  {/* NEW: Category Dropdown (Full Width) */}
+  <div className="md:col-span-2">
+    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-2 text-left">Section / Category</p>
+    <select 
+      className="w-full p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-slate-900 cursor-pointer appearance-none uppercase text-xs tracking-widest"
+      value={newItem.category || ""} 
+      onChange={e => setNewItem({...newItem, category: e.target.value})}
+    >
+      <option value="">Select a Category</option>
+      <option value="Individual Platters">Individual Platters</option>
+      <option value="Buffet">Buffet</option>
+      <option value="Rentals">Rentals</option>
+      <option value="Drinks">Drinks</option>
+    </select>
+  </div>
+
+  {/* Description & Image Row */}
+  <textarea className="p-5 bg-slate-50 rounded-2xl font-bold outline-none md:col-span-2 min-h-[100px]" placeholder="Item Description..." value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
+  <input className="p-5 bg-slate-50 rounded-2xl font-bold outline-none md:col-span-2" placeholder="Image URL (Paste .jpg or .png link here)" value={newItem.image} onChange={e => setNewItem({...newItem, image: e.target.value})} />
+  
+  <button onClick={handleSave} className="bg-slate-900 text-white rounded-[24px] font-black uppercase tracking-widest text-xs py-5 md:col-span-2 shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all">Publish to Menu</button>
+</div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {catalog.map(item => (
